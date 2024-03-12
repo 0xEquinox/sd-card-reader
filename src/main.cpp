@@ -115,6 +115,7 @@ void loop(){
 
   if (button_pause.isReleased()) {
     audio.pauseResume();
+    isPlayingAudio = !isPlayingAudio; // TODO: Major bug here is someone presses this with no song previously queued but whatever.
   }
   if (button_next.isReleased()) {
     playNext(); 
