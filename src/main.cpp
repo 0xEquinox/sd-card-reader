@@ -129,7 +129,7 @@ void loop(){
 
   // Navigation
   if (button_select_up.isReleased()) {
-    if (activeSelection == 0) activeSelection = songs.getSize();
+    if (activeSelection == 0) activeSelection = songs.getSize() - 1;
     else activeSelection--;
 
     Serial.println("Active Selection: " + songs.get(activeSelection));
