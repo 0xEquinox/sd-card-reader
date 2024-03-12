@@ -42,29 +42,20 @@ void readFile(fs::FS &fs, const char * path){
   file.close();
 }
 
-int fileCount = 0;
-
-void listAudioFiles(String dirPath, StringList fileList) {
-  // Open the directory
+StringList listAudioFiles(String dirPath, StringList fileList) {
   File dir = SD.open(dirPath);
-
-  // Check if the directory opened successfully
+  StringList empty;
   if (!dir) {
-    return;
+    return empty;
   }
-  // Loop through each file in the directory
   while (File file = dir.openNextFile()) {
     String fileName = file.name();
-    // Check if the file has a supported audio extension
     if (fileName.endsWith(".mp3") || fileName.endsWith(".wav") || fileName.endsWith(".flac")) {
-      // Add the file to the list
       fileList.add(fileName);
     }
-    // Close the file
     file.close();
   }
-  // Close the directory
   dir.close();
 
-  // Return the pointer to the array
+  return fileList;
 }

@@ -10,4 +10,4 @@ void listFiles(String dirPath);
 void readFile(fs::FS &fs, const char * path);
 
 #pragma once
-void listAudioFiles(String dirPath, StringList fileList);
+StringList listAudioFiles(String dirPath, StringList fileList);

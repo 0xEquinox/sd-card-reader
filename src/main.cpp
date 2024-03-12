@@ -30,10 +30,20 @@ StringList songs;
 int currentSong = 0;
 int volume = 10;
 int activeSelection = 0;
+bool isPlayingAudio = false;
 
 bool playSong(const char* song) {
   Serial.println("Now Playing: " + songs.get(currentSong));
   return audio.connecttoSD(song);
+}
+
+bool playNext() {
+    if (songs.get(currentSong + 1) == NULL) {
+      currentSong = -1; // Negative one so that when one is added it makes 0
+    } 
+    audio.stopSong();
+    activeSelection++;
+    return playSong(("/" + songs.get(++currentSong)).c_str());
 }
 
 void printMenu() {
@@ -63,7 +73,7 @@ void setup(){
   Serial.println("Card mount successful");
 
   // Add all the songs to the list
-  listAudioFiles("/", songs);
+  songs = listAudioFiles("/", songs);
   // All Audio setup
   if (!audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT)) {
     Serial.println("Failed to set pinout");
@@ -107,12 +117,7 @@ void loop(){
     audio.pauseResume();
   }
   if (button_next.isReleased()) {
-    if (songs.get(currentSong + 1) == NULL) {
-      currentSong = -1; // Negative one so that when one is added it makes 0
-    } 
-    audio.stopSong();
-    activeSelection++;
-    playSong(("/" + songs.get(++currentSong)).c_str());
+    playNext(); 
   }
   if (button_volume_up.isReleased()) {
     if (volume != 21) audio.setVolume(++volume);
@@ -138,6 +143,11 @@ void loop(){
     currentSong = activeSelection;
     audio.stopSong();
     playSong(("/" + songs.get(activeSelection)).c_str());
+    isPlayingAudio = true;
+  }
+
+  if (isPlayingAudio && !audio.isRunning()) {
+    playNext();
   }
 }
 
