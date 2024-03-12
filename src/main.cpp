@@ -38,7 +38,7 @@ bool playSong(const char* song) {
 }
 
 bool playNext() {
-    if (songs.get(currentSong + 1) == NULL) {
+    if (currentSong == songs.getSize() - 1) {
       currentSong = -1; // Negative one so that when one is added it makes 0
     } 
     audio.stopSong();
@@ -135,7 +135,7 @@ void loop(){
     Serial.println("Active Selection: " + songs.get(activeSelection));
   } 
   if (button_select_down.isReleased()) {
-    if (activeSelection == songs.getSize()) activeSelection = 0;
+    if (activeSelection == songs.getSize() - 1) activeSelection = 0;
     else activeSelection++;
 
     Serial.println("Active Selection: " + songs.get(activeSelection));
