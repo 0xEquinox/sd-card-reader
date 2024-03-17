@@ -16,6 +16,8 @@
 #define I2S_BCLK      14
 #define I2S_LRC       15
 
+#define ENCODER_A     33
+#define ENCODER_B     32
 
 Audio audio;
 ezButton button_pause(2);
@@ -31,6 +33,8 @@ int currentSong = 0;
 int volume = 10;
 int activeSelection = 0;
 bool isPlayingAudio = false;
+volatile unsigned int encoderPos = 0;
+
 
 bool playSong(const char* song) {
   Serial.println("Now Playing: " + songs.get(currentSong));
@@ -56,9 +60,37 @@ void printMenu() {
   Serial.println("Active Selection: " + songs.get(currentSong));
 }
 
+bool encoderAFlag = false;
+bool encoderBFlag = false;
+
+void readEncoderA(){
+  if (digitalRead(ENCODER_A) == HIGH){
+  encoderAFlag = true;
+    encoderPos += (digitalRead(ENCODER_B) == LOW)? 1: -1;
+  }else{
+    encoderPos += (digitalRead(ENCODER_B) == HIGH)? 1: -1;
+  }
+}
+
+void readEncoderB(){
+  if (digitalRead(ENCODER_B) == HIGH){
+  encoderBFlag = true;
+    encoderPos += (digitalRead(ENCODER_A) == HIGH)? 1: -1;
+  }else{
+    encoderPos += (digitalRead(ENCODER_A) == LOW)? 1: -1;
+  }
+}
 
 void setup(){
-  pinMode(SD_CS, OUTPUT);      
+  pinMode(SD_CS, OUTPUT);
+
+  // Hopefully for the scroll wheel encoder
+  pinMode(ENCODER_A, INPUT);
+  pinMode(ENCODER_B, INPUT);
+
+  attachInterrupt(ENCODER_A, readEncoderA, CHANGE);
+  attachInterrupt(ENCODER_B, readEncoderB, CHANGE);  
+
   digitalWrite(SD_CS, HIGH);
   Serial.begin(115200);
 
@@ -109,6 +141,8 @@ void loop(){
   button_select.loop();
   audio.loop();
 
+  Serial.printf("\nEncoder Pos: %d | Encoder A Triggered: %d | Encoder B Triggered: %d", encoderPos, encoderAFlag, encoderBFlag);
+
   if (audio.isRunning()) {
   } else {
   }
@@ -153,36 +187,36 @@ void loop(){
 }
 
 // optional
-// void audio_info(const char *info){
-//     Serial.print("info        "); Serial.println(info);
-// }
-// void audio_id3data(const char *info){  //id3 metadata
-//     Serial.print("id3data     ");Serial.println(info);
-// }
-// void audio_eof_mp3(const char *info){  //end of file
-//     Serial.print("eof_mp3     ");Serial.println(info);
-// }
-// void audio_showstation(const char *info){
-//     Serial.print("station     ");Serial.println(info);
-// }
-// void audio_showstreaminfo(const char *info){
-//     Serial.print("streaminfo  ");Serial.println(info);
-// }
-// void audio_showstreamtitle(const char *info){
-//     Serial.print("streamtitle ");Serial.println(info);
-// }
-// void audio_bitrate(const char *info){
-//     Serial.print("bitrate     ");Serial.println(info);
-// }
-// void audio_commercial(const char *info){  //duration in sec
-//     Serial.print("commercial  ");Serial.println(info);
-// }
-// void audio_icyurl(const char *info){  //homepage
-//     Serial.print("icyurl      ");Serial.println(info);
-// }
-// void audio_lasthost(const char *info){  //stream URL played
-//     Serial.print("lasthost    ");Serial.println(info);
-// }
-// void audio_eof_speech(const char *info){
-//     Serial.print("eof_speech  ");Serial.println(info);
-// }
+void audio_info(const char *info){
+    Serial.print("info        "); Serial.println(info);
+}
+void audio_id3data(const char *info){  //id3 metadata
+    Serial.print("id3data     ");Serial.println(info);
+}
+void audio_eof_mp3(const char *info){  //end of file
+    Serial.print("eof_mp3     ");Serial.println(info);
+}
+void audio_showstation(const char *info){
+    Serial.print("station     ");Serial.println(info);
+}
+void audio_showstreaminfo(const char *info){
+    Serial.print("streaminfo  ");Serial.println(info);
+}
+void audio_showstreamtitle(const char *info){
+    Serial.print("streamtitle ");Serial.println(info);
+}
+void audio_bitrate(const char *info){
+    Serial.print("bitrate     ");Serial.println(info);
+}
+void audio_commercial(const char *info){  //duration in sec
+    Serial.print("commercial  ");Serial.println(info);
+}
+void audio_icyurl(const char *info){  //homepage
+    Serial.print("icyurl      ");Serial.println(info);
+}
+void audio_lasthost(const char *info){  //stream URL played
+    Serial.print("lasthost    ");Serial.println(info);
+}
+void audio_eof_speech(const char *info){
+    Serial.print("eof_speech  ");Serial.println(info);
+}
